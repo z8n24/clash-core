@@ -114,14 +114,39 @@ func strategyRoundRobin() strategyFn {
 	}
 }
 
+func strategyLatencyFirst() strategyFn {
+	return func(proxies []C.Proxy, metadata *C.Metadata) C.Proxy {
+		var p C.Proxy
+		p = proxies[0]
+		var minLantency uint16 = 65535
+
+		for _, x := range proxies {
+			if !x.Alive() {
+				continue
+			}
+
+			if x.LastDelay() < minLantency {
+				minLantency = x.LastDelay()
+				p = x
+			}
+		}
+		return p
+	}
+}
+
 func strategyConsistentHashing() strategyFn {
 	maxRetry := 5
 	return func(proxies []C.Proxy, metadata *C.Metadata) C.Proxy {
+		for _, x := range proxies {
+			fmt.Println(x.Name(), x.Alive(), x.LastDelay())
+		}
 		key := uint64(murmur3.Sum32([]byte(getKey(metadata))))
 		buckets := int32(len(proxies))
 		for i := 0; i < maxRetry; i, key = i+1, key+1 {
+
 			idx := jumpHash(key, buckets)
 			proxy := proxies[idx]
+			fmt.Println(key, idx, proxy.Name())
 			if proxy.Alive() {
 				return proxy
 			}
@@ -171,9 +196,12 @@ func NewLoadBalance(option *GroupCommonOption, providers []provider.ProxyProvide
 		strategyFn = strategyConsistentHashing()
 	case "round-robin":
 		strategyFn = strategyRoundRobin()
+	case "latency-first":
+		strategyFn = strategyLatencyFirst()
 	default:
 		return nil, fmt.Errorf("%w: %s", errStrategy, strategy)
 	}
+	fmt.Println(strategy)
 	return &LoadBalance{
 		Base: outbound.NewBase(outbound.BaseOption{
 			Name:        option.Name,

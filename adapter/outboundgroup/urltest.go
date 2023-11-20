@@ -3,6 +3,8 @@ package outboundgroup
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Dreamacro/clash/adapter/outbound"
@@ -82,6 +84,12 @@ func (u *URLTest) fast(touch bool) C.Proxy {
 			}
 
 			delay := proxy.LastDelay()
+			if strings.Contains(proxy.Name(), "x8") {
+				delay *= 5
+			}
+			if strings.Contains(proxy.Name(), "x3") {
+				delay *= 2
+			}
 			if delay < min {
 				fast = proxy
 				min = delay
@@ -98,7 +106,7 @@ func (u *URLTest) fast(touch bool) C.Proxy {
 	if shared && touch { // a shared fastSingle.Do() may cause providers untouched, so we touch them again
 		touchProviders(u.providers)
 	}
-
+	fmt.Println(elm.(C.Proxy).Name(), elm.(C.Proxy).LastDelay())
 	return elm.(C.Proxy)
 }
 

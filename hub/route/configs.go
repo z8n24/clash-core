@@ -1,6 +1,7 @@
 package route
 
 import (
+	"fmt"
 	"net/http"
 	"path/filepath"
 
@@ -120,7 +121,7 @@ func updateConfigs(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
+	fmt.Println(fmt.Sprintf("%+v\n", cfg.Proxies))
 	executor.ApplyConfig(cfg, force)
 	render.NoContent(w, r)
 }

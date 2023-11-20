@@ -2,6 +2,8 @@ package provider
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/Dreamacro/clash/common/batch"
@@ -33,7 +35,9 @@ func (hc *HealthCheck) process() {
 	ticker := time.NewTicker(time.Duration(hc.interval) * time.Second)
 
 	go hc.checkAll()
+	fmt.Println("check")
 	for {
+
 		select {
 		case <-ticker.C:
 			now := time.Now().Unix()
@@ -73,6 +77,9 @@ func (hc *HealthCheck) checkAll() {
 func (hc *HealthCheck) check(proxies []C.Proxy) {
 	b, _ := batch.New(context.Background(), batch.WithConcurrencyNum(10))
 	for _, proxy := range proxies {
+		if strings.Contains(proxy.Addr(), "do.not.use") || strings.Contains(proxy.Addr(), "REJECT") || strings.Contains(proxy.Addr(), "DIRECT") {
+			continue
+		}
 		p := proxy
 		b.Go(p.Name(), func() (any, error) {
 			ctx, cancel := context.WithTimeout(context.Background(), defaultURLTestTimeout)
