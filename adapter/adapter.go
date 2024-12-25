@@ -130,6 +130,7 @@ func (p *Proxy) URLTest(ctx context.Context, url string) (delay, meanDelay uint1
 	defer instance.Close()
 
 	req, err := http.NewRequest(http.MethodHead, url, nil)
+
 	if err != nil {
 		return
 	}
@@ -155,12 +156,12 @@ func (p *Proxy) URLTest(ctx context.Context, url string) (delay, meanDelay uint1
 	defer client.CloseIdleConnections()
 
 	resp, err := client.Do(req)
+
 	if err != nil {
 		return
 	}
 	resp.Body.Close()
 	delay = uint16(time.Since(start) / time.Millisecond)
-
 	resp, err = client.Do(req)
 	if err != nil {
 		// ignore error because some server will hijack the connection and close immediately

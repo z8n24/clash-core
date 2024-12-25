@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/subtle"
 	"encoding/json"
+	"fmt"
 	"net"
 	"net/http"
 	"strings"
@@ -47,7 +48,7 @@ func Start(addr string, secret string) {
 	if serverAddr != "" {
 		return
 	}
-
+	fmt.Println(addr, secret)
 	serverAddr = addr
 	serverSecret = secret
 

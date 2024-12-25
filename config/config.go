@@ -222,7 +222,7 @@ func Parse(buf []byte) (*Config, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	fmt.Println("+=======group>", 1)
 	return ParseRawConfig(rawCfg)
 }
 
@@ -404,7 +404,6 @@ func parseProxies(cfg *RawConfig) (proxies map[string]C.Proxy, providersMap map[
 
 		providersMap[name] = pd
 	}
-
 	for _, provider := range providersMap {
 		log.Infoln("Start initial provider %s", provider.Name())
 		if err := provider.Initial(); err != nil {
@@ -414,12 +413,14 @@ func parseProxies(cfg *RawConfig) (proxies map[string]C.Proxy, providersMap map[
 
 	// parse proxy group
 	for idx, mapping := range groupsConfig {
+
 		group, err := outboundgroup.ParseProxyGroup(mapping, proxies, providersMap)
 		if err != nil {
 			return nil, nil, fmt.Errorf("proxy group[%d]: %w", idx, err)
 		}
 
 		groupName := group.Name()
+		fmt.Println("+=======group>", groupName)
 		if _, exist := proxies[groupName]; exist {
 			return nil, nil, fmt.Errorf("proxy group %s: the duplicate name", groupName)
 		}
@@ -443,7 +444,7 @@ func parseProxies(cfg *RawConfig) (proxies map[string]C.Proxy, providersMap map[
 	for _, v := range proxyList {
 		ps = append(ps, proxies[v])
 	}
-	hc := provider.NewHealthCheck(ps, "", 0, true)
+	hc := provider.NewHealthCheck(ps, "https://www.google.com", 1, true)
 	pd, _ := provider.NewCompatibleProvider(provider.ReservedName, ps, hc)
 	providersMap[provider.ReservedName] = pd
 

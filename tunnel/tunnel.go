@@ -322,7 +322,6 @@ func handleTCPConn(connCtx C.ConnContext) {
 		log.Warnln("[Metadata] parse failed: %s", err.Error())
 		return
 	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), C.DefaultTCPTimeout)
 	defer cancel()
 	remoteConn, err := proxy.DialContext(ctx, metadata.Pure())
@@ -348,7 +347,7 @@ func handleTCPConn(connCtx C.ConnContext) {
 		log.Infoln("[TCP] %s --> %s using %s", metadata.SourceAddress(), metadata.RemoteAddress(), metadata.SpecialProxy)
 	case rule != nil:
 		log.Infoln(
-			"[TCP] %s --> %s match %s(%s) using %s",
+			"111[TCP] %s --> %s match %s(%s) using %s",
 			metadata.SourceAddress(),
 			metadata.RemoteAddress(),
 			rule.RuleType().String(),
@@ -416,6 +415,8 @@ func match(metadata *C.Metadata) (C.Proxy, C.Rule, error) {
 		}
 
 		if rule.Match(metadata) {
+			fmt.Println(rule.Adapter())
+
 			adapter, ok := proxies[rule.Adapter()]
 			if !ok {
 				continue

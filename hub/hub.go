@@ -44,7 +44,6 @@ func Parse(options ...Option) error {
 	if cfg.General.ExternalController != "" {
 		go route.Start(cfg.General.ExternalController, cfg.General.Secret)
 	}
-
 	executor.ApplyConfig(cfg, true)
 	return nil
 }
